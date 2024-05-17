@@ -19,18 +19,20 @@ namespace ApiSample
 {
     public partial class Kliens : Form
     {
-
         private double kedvezmeny = 0.1;
+        private string desktopPath;
+
         public Kliens()
         {
             InitializeComponent();
-
+            desktopPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "ApiSample");
+            Directory.CreateDirectory(desktopPath); // Ensure the directory exists
         }
 
         private void Kliens_Load(object sender, EventArgs e)
         {
-            pictureBox2.Image = Image.FromFile("C:\\Users\\tomka\\source\\repos\\hotcakes-commerce-core\\DevSamples\\ApiSample\\logo_legveglegesebb.png");
-            
+            string imagePath = Path.Combine(desktopPath, "logo_legveglegesebb.png");
+            pictureBox2.Image = Image.FromFile(imagePath);
 
             textBox1.Text = "0";
             string url = "http://20.234.113.211:8093";
@@ -38,10 +40,7 @@ namespace ApiSample
 
             Api proxy = new Api(url, key);
 
-
-
             ApiResponse<List<ProductDTO>> response = proxy.ProductsFindAll();
-
             List<ProductDTO> products = response.Content;
 
             listBox1.DisplayMember = "ProductName";
@@ -49,7 +48,6 @@ namespace ApiSample
 
             foreach (var product in products)
             {
-                // Add the product name to the ListBox
                 listBox1.Items.Add(product);
             }
         }
@@ -65,12 +63,10 @@ namespace ApiSample
             listBox2.Items.Add(selected);
         }
 
-
         private void button2_Click(object sender, EventArgs e)
         {
             List<ProductDTO> products = new List<ProductDTO>();
 
-            // Iterate through each item in listBox2 and cast them to ProductDTO
             foreach (var item in listBox2.Items)
             {
                 if (item is ProductDTO prod)
@@ -79,14 +75,12 @@ namespace ApiSample
                 }
             }
 
-            string filePath = "C:\\Users\\tomka\\Desktop\\backup.json";
+            string filePath = Path.Combine(desktopPath, "backup.json");
             ProductDataSaver.SaveProductsToFile(products, filePath);
             Console.Write(products);
 
             string url = "http://20.234.113.211:8093";
             string key = "1-41c9229f-7395-41cb-b3e9-8b330e442304";
-
-            // Initialize proxy in the Kliens_Load method
 
             Api proxy = new Api(url, key);
 
@@ -107,14 +101,6 @@ namespace ApiSample
                     ApiResponse<ProductDTO> response = proxy.ProductsUpdate(product);
                 }
             }
-
-
-
-
-
-
-
-
         }
 
         private void label1_Click(object sender, EventArgs e)
@@ -132,7 +118,8 @@ namespace ApiSample
 
         private void button4_Click(object sender, EventArgs e)
         {
-            List<ProductDTO> loadedProducts = ProductDataSaver.LoadProductsFromFile("C:\\Users\\tomka\\Desktop\\backup.json");
+            string filePath = Path.Combine(desktopPath, "backup.json");
+            List<ProductDTO> loadedProducts = ProductDataSaver.LoadProductsFromFile(filePath);
             Console.Write(loadedProducts);
 
             string url = "http://20.234.113.211:8093";
